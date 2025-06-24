@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MCP Filesystem Operations</title>
+    <link rel="stylesheet" href="styles/main.css" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="app-container">
+      <!-- Header -->
+      <header class="app-header">
+        <div class="header-content">
+          <div class="header-left">
+            <div class="logo">
+              <i class="fas fa-code-branch"></i>
+              <h1>MCP Filesystem</h1>
+            </div>
+            <p class="header-subtitle">
+              AI-powered file management with Model Context Protocol
+            </p>
+          </div>
+          <div class="header-right">
+            <div class="theme-toggle">
+              <button id="theme-toggle" class="theme-btn">
+                <i class="fas fa-moon"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Upload Section -->
+        <section class="upload-section">
+          <div class="section-header">
+            <h2><i class="fas fa-cloud-upload-alt"></i> Upload Files</h2>
+            <p>Upload folders or individual files to get started</p>
+          </div>
+
+          <div class="upload-grid">
+            <div class="upload-card" id="folder-upload-area">
+              <input
+                type="file"
+                id="folder-upload"
+                webkitdirectory
+                multiple
+                accept="*/*"
+              />
+              <label for="folder-upload" class="upload-label">
+                <div class="upload-icon">
+                  <i class="fas fa-folder-open"></i>
+                </div>
+                <h3>Upload Folder</h3>
+                <p>Select a folder or drag & drop</p>
+                <span class="upload-hint">Supports directory structure</span>
+              </label>
+            </div>
+
+            <div class="upload-divider">
+              <span>or</span>
+            </div>
+
+            <div class="upload-card" id="files-upload-area">
+              <input type="file" id="files-upload" multiple accept="*/*" />
+              <label for="files-upload" class="upload-label">
+                <div class="upload-icon">
+                  <i class="fas fa-file-upload"></i>
+                </div>
+                <h3>Upload Files</h3>
+                <p>Select individual files or drag & drop</p>
+                <span class="upload-hint">Multiple files supported</span>
+              </label>
+            </div>
+          </div>
+
+          <div id="upload-status" class="upload-status"></div>
+        </section>
+
+        <!-- File Browser Section -->
+        <section class="browser-section">
+          <div class="section-header">
+            <div class="header-left">
+              <h2><i class="fas fa-folder"></i> File Browser</h2>
+              <span id="file-count" class="file-count"></span>
+            </div>
+            <div class="header-actions">
+              <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input
+                  type="text"
+                  id="file-search"
+                  placeholder="Search files..."
+                  class="search-input"
+                />
+              </div>
+              <button id="refresh-files" class="btn btn-secondary">
+                <i class="fas fa-sync-alt"></i>
+                <span>Refresh</span>
+              </button>
+              <button id="create-file" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                <span>New File</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="file-actions">
+            <button id="download-all" class="btn btn-success">
+              <i class="fas fa-download"></i>
+              <span>Download All</span>
+            </button>
+            <button id="delete-all-files" class="btn btn-danger">
+              <i class="fas fa-trash"></i>
+              <span>Delete All</span>
+            </button>
+          </div>
+
+          <div id="file-list" class="file-list"></div>
+        </section>
+
+        <!-- File Editor Section -->
+        <section
+          class="editor-section"
+          id="editor-section"
+          style="display: none"
+        >
+          <div class="section-header">
+            <div class="header-left">
+              <h2><i class="fas fa-edit"></i> File Editor</h2>
+              <span id="current-file" class="current-file"
+                >No file selected</span
+              >
+            </div>
+            <div class="header-actions">
+              <button id="download-current" class="btn btn-secondary">
+                <i class="fas fa-download"></i>
+                <span>Download</span>
+              </button>
+              <button id="save-file" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                <span>Save</span>
+              </button>
+              <button id="close-editor" class="btn btn-ghost">
+                <i class="fas fa-times"></i>
+                <span>Close</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="editor-grid">
+            <div class="editor-panel">
+              <div class="panel-header">
+                <h3><i class="fas fa-magic"></i> AI Assistant</h3>
+                <p>Use AI to enhance your code</p>
+              </div>
+
+              <div class="ai-prompts">
+                <div class="prompt-buttons">
+                  <button class="prompt-btn" data-prompt-type="refactor">
+                    <i class="fas fa-code"></i>
+                    <span>Refactor</span>
+                  </button>
+                  <button class="prompt-btn" data-prompt-type="summarize">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Summarize</span>
+                  </button>
+                  <button class="prompt-btn" data-prompt-type="fix-errors">
+                    <i class="fas fa-bug"></i>
+                    <span>Fix Errors</span>
+                  </button>
+                  <button class="prompt-btn" data-prompt-type="docstrings">
+                    <i class="fas fa-comments"></i>
+                    <span>Add Docs</span>
+                  </button>
+                </div>
+
+                <div class="prompt-input">
+                  <textarea
+                    id="ai-prompt"
+                    placeholder="Describe what changes you want to make to this file..."
+                    rows="4"
+                  ></textarea>
+                  <button id="apply-ai-edit" class="btn btn-primary btn-full">
+                    <i class="fas fa-magic"></i>
+                    <span>Apply AI Edit</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="editor-panel">
+              <div class="panel-header">
+                <h3><i class="fas fa-file-code"></i> File Content</h3>
+                <p>Edit your file content</p>
+              </div>
+
+              <div class="file-editor">
+                <textarea
+                  id="file-content"
+                  placeholder="File content will appear here..."
+                  rows="20"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Loading Overlay -->
+      <div id="loading-overlay" class="loading-overlay" style="display: none">
+        <div class="loading-card">
+          <div class="loading-spinner"></div>
+          <h3 id="loading-text">Processing with AI...</h3>
+          <p>Please wait while we process your request</p>
+        </div>
+      </div>
+
+      <!-- Create File Modal -->
+      <div id="create-file-modal" class="modal" style="display: none">
+        <div class="modal-backdrop"></div>
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3><i class="fas fa-plus-circle"></i> Create New File</h3>
+            <button id="cancel-create" class="modal-close">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="new-filename">Filename</label>
+              <input
+                type="text"
+                id="new-filename"
+                placeholder="e.g., example.txt, script.js, style.css"
+                class="form-input"
+              />
+            </div>
+            <div class="form-group">
+              <label for="new-file-content">Initial Content (Optional)</label>
+              <textarea
+                id="new-file-content"
+                placeholder="Enter initial content for the file..."
+                class="form-textarea"
+                rows="6"
+              ></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button id="confirm-create" class="btn btn-primary">
+              <i class="fas fa-check"></i>
+              <span>Create File</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirmation Modal -->
+      <div id="confirmation-modal" class="modal" style="display: none">
+        <div class="modal-backdrop"></div>
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3 id="confirmation-modal-title">
+              <i class="fas fa-exclamation-triangle"></i>
+              Confirm Action
+            </h3>
+            <button id="cancel-action-btn" class="modal-close">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p id="confirmation-modal-message"></p>
+          </div>
+          <div class="modal-footer">
+            <button id="confirm-action-btn" class="btn btn-danger">
+              <i class="fas fa-check"></i>
+              <span>Confirm</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast Container -->
+      <div id="toast-container" class="toast-container"></div>
+    </div>
+
+    <script src="scripts/app.js"></script>
+  </body>
+</html>
