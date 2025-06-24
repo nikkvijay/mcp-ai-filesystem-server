@@ -520,25 +520,30 @@ class FilesystemApp {
     this.showLoading(true, "Applying AI edits...");
 
     try {
-      const response = await fetch("/api/ai-edit", {
-        method: "POST",
+      // Corrected: Uses PUT method and /api/files/edit endpoint
+      const response = await fetch("/api/files/edit", {
+        method: "PUT", // Use PUT method
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           filename: this.currentFile,
           prompt: prompt,
+          use_ai: true, // Explicitly tell backend to use AI
         }),
       });
 
       const result = await response.json();
 
       if (result.success) {
-        document.getElementById("file-content").value = result.content;
+        // The backend `edit_file` for AI should return `new_content`
+        if (result.new_content) {
+          document.getElementById("file-content").value = result.new_content;
+        }
         this.showStatus("AI edit applied successfully", "success");
       } else {
         this.showStatus(
-          `AI edit failed: ${result.error || "Unknown error"}`,
+          `AI edit failed: ${result.message || "Unknown error"}`, // Use result.message from backend
           "error"
         );
       }
@@ -564,14 +569,19 @@ class FilesystemApp {
     this.showLoading(true, "Saving file...");
 
     try {
+      // Corrected: Uses PUT method and /api/files/edit endpoint
       const response = await fetch(
-        `/api/files/${encodeURIComponent(this.currentFile)}`,
+        `/api/files/edit`, // Unified edit endpoint
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ content }),
+          body: JSON.stringify({
+            filename: this.currentFile, // Pass filename in body for unified edit
+            content: content,
+            use_ai: false, // Explicitly tell backend NOT to use AI
+          }),
         }
       );
 
@@ -617,12 +627,14 @@ class FilesystemApp {
     this.showLoading(true, "Deleting file...");
 
     try {
-      const response = await fetch(
-        `/api/files/${encodeURIComponent(filename)}`,
-        {
-          method: "DELETE",
-        }
-      );
+      // Endpoint: /api/files/delete with DELETE method, filename in body
+      const response = await fetch(`/api/files/delete`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json", // Crucial for Flask to parse request.json
+        },
+        body: JSON.stringify({ filename }), // Filename in JSON body
+      });
 
       const result = await response.json();
 
@@ -674,7 +686,7 @@ class FilesystemApp {
     this.showLoading(true, "Creating file...");
 
     try {
-      const response = await fetch("/api/files", {
+      const response = await fetch("/api/files/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -759,8 +771,9 @@ class FilesystemApp {
 
   async downloadFile(filename) {
     try {
+      // Corrected: Uses /api/download/<filename> endpoint as defined in mcp_bridge.py
       const response = await fetch(
-        `/api/files/${encodeURIComponent(filename)}/download`
+        `/api/download/${encodeURIComponent(filename)}`
       );
 
       if (response.ok) {
@@ -801,7 +814,8 @@ class FilesystemApp {
     this.showLoading(true, "Preparing download...");
 
     try {
-      const response = await fetch("/api/download-all");
+      // Corrected: Uses /api/download/all endpoint as defined in mcp_bridge.py
+      const response = await fetch("/api/download/all");
 
       if (response.ok) {
         const blob = await response.blob();
@@ -843,28 +857,33 @@ class FilesystemApp {
     this.showLoading(true, "Deleting all files...");
 
     try {
-      const response = await fetch("/api/files", {
-        method: "DELETE",
-      });
+      // Endpoint: /api/files with DELETE method is handled by mcp_bridge for mass delete
+      // However, current mcp_bridge.py only has /api/files/delete for single file.
+      // To perform a mass delete by iterating, we can reuse the single delete endpoint.
+      // Or, if /api/files (DELETE) was intended for mass delete, the backend needs that route.
+      // Given the current mcp_bridge.py, the deleteAllFiles in app.js loops through single deletes.
+      // Let's stick to the current backend structure, which means app.js's loop is correct.
 
-      const result = await response.json();
+      for (const filename of this.allFiles) {
+        // Iterate through all files and delete one by one
+        await fetch("/api/files/delete", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ filename: filename }),
+        });
+      }
 
-      if (result.success) {
-        this.showStatus("All files deleted", "success");
-        this.allFiles = [];
-        this.filteredFiles = [];
-        this.renderFileList();
-        this.updateFileCount();
+      this.showStatus("All files deleted", "success");
+      this.allFiles = [];
+      this.filteredFiles = [];
+      this.renderFileList();
+      this.updateFileCount();
 
-        // Close editor if it was open
-        if (this.currentFile) {
-          this.closeEditor();
-        }
-      } else {
-        this.showStatus(
-          `Delete failed: ${result.error || "Unknown error"}`,
-          "error"
-        );
+      // Close editor if it was open
+      if (this.currentFile) {
+        this.closeEditor();
       }
     } catch (error) {
       console.error("Delete all error:", error);

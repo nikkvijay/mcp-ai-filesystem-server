@@ -2,6 +2,8 @@
 
 An intelligent, Model Context Protocol (MCP) powered filesystem server enabling seamless file management and AI-assisted editing.
 
+## [Demo Video](https://drive.google.com/file/d/1wwRwuxC2zCDFHheD-TBXR8-d_kdMyGGD/view?usp=sharing)
+
 ## ✨ Overview
 
 The **MCP File System ** is a sophisticated application designed to streamline file operations with the power of Artificial Intelligence. It implements a robust Model Context Protocol (MCP) server, offering a secure and extensible foundation for interacting with files. Through its intuitive web interface, users can upload entire folders, manage individual files, and leverage an integrated AI assistant for intelligent content manipulation.
