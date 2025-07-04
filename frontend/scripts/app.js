@@ -8,6 +8,60 @@ class FilesystemApp {
     this.aiServiceAvailable = false;
     this.currentTheme = localStorage.getItem("theme") || "light";
 
+    // Add allowed file extensions
+    this.allowedExtensions = [
+      "txt",
+      "md",
+      "js",
+      "ts",
+      "jsx",
+      "tsx",
+      "py",
+      "java",
+      "cpp",
+      "c",
+      "cs",
+      "php",
+      "rb",
+      "go",
+      "rs",
+      "swift",
+      "kt",
+      "html",
+      "htm",
+      "css",
+      "scss",
+      "sass",
+      "less",
+      "json",
+      "xml",
+      "csv",
+      "sql",
+      "yaml",
+      "yml",
+      "doc",
+      "docx",
+      "xls",
+      "xlsx",
+      "ppt",
+      "pptx",
+      "jpg",
+      "jpeg",
+      "png",
+      "gif",
+      "svg",
+      "webp",
+      "zip",
+      "rar",
+      "7z",
+      "tar",
+      "gz",
+      "env",
+      "config",
+      "ini",
+      "toml",
+    ];
+
     this.initializeEventListeners();
     this.loadFiles();
     this.checkAIService();
@@ -237,20 +291,57 @@ class FilesystemApp {
     e.stopPropagation();
   }
 
+  async retryFetch(url, options, retries = 3, delay = 1000) {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response;
+      } catch (error) {
+        if (attempt === retries) throw error;
+        console.warn(
+          `Attempt ${attempt} failed: ${error.message}. Retrying in ${delay}ms...`
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        delay *= 2; // Exponential backoff
+      }
+    }
+  }
+
+  validateFileExtension(filename) {
+    const extension = filename.split(".").pop().toLowerCase();
+    if (!this.allowedExtensions.includes(extension)) {
+      this.showStatus(`File type .${extension} is not allowed`, "error");
+      return false;
+    }
+    return true;
+  }
+
   async handleFileUpload(files) {
     this.showLoading(true, "Uploading files...");
 
     try {
       const formData = new FormData();
+      let validFiles = 0;
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        // Preserve directory structure for folder uploads
+        if (!this.validateFileExtension(file.name)) continue;
+
         const relativePath = file.webkitRelativePath || file.name;
         formData.append("files", file, relativePath);
+        validFiles++;
       }
 
-      const response = await fetch("/api/upload", {
+      if (validFiles === 0) {
+        this.showStatus("No valid files to upload", "error");
+        this.showLoading(false);
+        return;
+      }
+
+      const response = await this.retryFetch("/api/upload", {
         method: "POST",
         body: formData,
       });
@@ -259,7 +350,7 @@ class FilesystemApp {
 
       if (result.success) {
         this.showStatus(
-          `Successfully uploaded ${files.length} file(s)`,
+          `Successfully uploaded ${validFiles} file(s)`,
           "success"
         );
         this.loadFiles(); // Refresh file list
@@ -282,7 +373,7 @@ class FilesystemApp {
 
   async loadFiles() {
     try {
-      const response = await fetch("/api/files");
+      const response = await this.retryFetch("/api/files");
       const result = await response.json();
 
       if (result.success) {

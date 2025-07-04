@@ -1,9 +1,7 @@
 # Web Server Dependencies  
-Flask==2.3.3
-Flask-CORS==4.0.0
-
-# AI Integration
-requests==2.31.0
-
-# Environment Management
-python-dotenv==1.0.0
+flask
+flask-cors
+python-dotenv
+requests
+filelock
+retrying
