@@ -2,14 +2,18 @@
 
 import sys
 import asyncio
+import logging
 from pathlib import Path
+
+# Add server directory to Python path before imports
+server_dir = Path(__file__).parent / "server"
+sys.path.insert(0, str(server_dir))
+
+# Import MCPClient after adding server dir to path
 from mcp_client import MCPClient
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-server_dir = Path(__file__).parent / "server"
-sys.path.insert(0, str(server_dir))
 
 async def test_mcp_functionality():
     print("🧪 Testing MCP Filesystem Server...")

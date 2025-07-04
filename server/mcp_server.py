@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 FILE_DIRECTORY = os.getenv('FILE_STORAGE_PATH', 'uploaded_files')
 TOGETHER_AI_API_KEY = os.getenv('TOGETHER_AI_API_KEY')
-TOGETHER_AI_MODEL = os.getenv('TOGETHER_AI_MODEL', 'mistralai/Mixtral-8x7B-Instruct-v0.1')
+TOGETHER_AI_MODEL = os.getenv('TOGETHER_AI_MODEL', 'meta-llama/Llama-3.3-70B-Instruct-Turbo')
 TOGETHER_AI_BASE_URL = 'https://api.together.xyz/v1/chat/completions'
 
 ALLOWED_EXTENSIONS = [

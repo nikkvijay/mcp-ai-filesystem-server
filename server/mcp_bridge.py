@@ -345,7 +345,7 @@ def health_check():
             "status": "healthy",
             "mcp_server": "available" if mcp_available else "unavailable",
             "ai_service": ai_status,
-            "model": os.getenv('TOGETHER_AI_MODEL', 'mistralai/Mixtral-8x7B-Instruct-v0.1') if ai_status == "available" else None
+            "model": os.getenv('TOGETHER_AI_MODEL', 'meta-llama/Llama-3.3-70B-Instruct-Turbo') if ai_status == "available" else None
         })
     except Exception as e:
         logger.error(f"Health check error: {e}")
