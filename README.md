@@ -2,15 +2,9 @@
 
 An intelligent, Model Context Protocol (MCP) powered filesystem server enabling seamless file management and AI-assisted editing.
 
-<<<<<<< HEAD
+
 ## [Demo Video](https://drive.google.com/file/d/1wwRwuxC2zCDFHheD-TBXR8-d_kdMyGGD/view?usp=sharing)
-=======
-# Demo Video
 
-Watch a demonstration of the MCP File System in action:
-
-[▶️ Demo Video on Google Drive](https://drive.google.com/file/d/1wwRwuxC2zCDFHheD-TBXR8-d_kdMyGGD/view?usp=sharing)
->>>>>>> fda7418 (Enhance README with demo video link and update API endpoints in app.js for file operations. Changed methods to PUT for editing files, unified edit endpoint, and improved error handling. Adjusted delete functionality to use a single endpoint for mass deletion.)
 
 ## ✨ Overview
 
